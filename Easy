@@ -1,0 +1,74 @@
+Table: Employee (EmpID, Name, Salary)
+
+import java.sql.*;
+
+public class FetchEmployeeData {
+    public static void main(String[] args) {
+        // Database URL, Username, Password
+        String url = "jdbc:mysql://localhost:3306/your_database_name";
+        String user = "your_username";
+        String password = "your_password";
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Load JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Establish the connection
+            conn = DriverManager.getConnection(url, user, password);
+
+            // Create statement
+            stmt = conn.createStatement();
+
+            // Execute SQL query
+            String query = "SELECT EmpID, Name, Salary FROM Employee";
+            rs = stmt.executeQuery(query);
+
+            // Display the result
+            System.out.println("EmpID\tName\tSalary");
+            System.out.println("-----------------------------");
+            while (rs.next()) {
+                int empId = rs.getInt("EmpID");
+                String name = rs.getString("Name");
+                double salary = rs.getDouble("Salary");
+                System.out.println(empId + "\t" + name + "\t" + salary);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
+            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+        }
+    }
+}
+
+ Fetch Employee Data
+
+import java.sql.*;
+
+public class FetchEmployeeData {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/your_database";
+        String user = "root";
+        String password = "password";
+
+        try (Connection con = DriverManager.getConnection(url, user, password);
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT EmpID, Name, Salary FROM Employee")) {
+
+            System.out.println("EmpID\tName\tSalary");
+            while (rs.next()) {
+                System.out.println(rs.getInt("EmpID") + "\t" + rs.getString("Name") + "\t" + rs.getDouble("Salary"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
