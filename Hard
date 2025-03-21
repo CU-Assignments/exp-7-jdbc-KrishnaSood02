@@ -1,0 +1,102 @@
+Student Model Class
+
+public class Student {
+    int studentId;
+    String name;
+    String department;
+    double marks;
+
+    public Student(int studentId, String name, String department, double marks) {
+        this.studentId = studentId;
+        this.name = name;
+        this.department = department;
+        this.marks = marks;
+    }
+}
+
+StudentController Class (Handles DB operations)
+
+import java.sql.*;
+
+public class StudentController {
+    Connection con;
+    public StudentController() throws SQLException {
+        con = DriverManager.getConnection("jdbc:mysql://localhost:3306/your_database", "root", "password");
+    }
+
+    public void insertStudent(Student s) throws SQLException {
+        String sql = "INSERT INTO Student VALUES (?, ?, ?, ?)";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, s.studentId);
+        ps.setString(2, s.name);
+        ps.setString(3, s.department);
+        ps.setDouble(4, s.marks);
+        ps.executeUpdate();
+        System.out.println("Student Inserted");
+    }
+
+    public void viewStudents() throws SQLException {
+        String sql = "SELECT * FROM Student";
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        System.out.println("ID\tName\tDept\tMarks");
+        while (rs.next()) {
+            System.out.println(rs.getInt(1) + "\t" + rs.getString(2) + "\t" + rs.getString(3) + "\t" + rs.getDouble(4));
+        }
+    }
+
+    public void updateStudent(int id, double marks) throws SQLException {
+        String sql = "UPDATE Student SET Marks=? WHERE StudentID=?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setDouble(1, marks);
+        ps.setInt(2, id);
+        ps.executeUpdate();
+        System.out.println("Student Updated");
+    }
+
+    public void deleteStudent(int id) throws SQLException {
+        String sql = "DELETE FROM Student WHERE StudentID=?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, id);
+        ps.executeUpdate();
+        System.out.println("Student Deleted");
+    }
+}
+
+StudentView Class (Menu-Driven)
+
+import java.util.Scanner;
+
+public class StudentView {
+    public static void main(String[] args) {
+        try {
+            Scanner sc = new Scanner(System.in);
+            StudentController controller = new StudentController();
+            int choice;
+            do {
+                System.out.println("\n1. Add Student\n2. View Students\n3. Update Marks\n4. Delete Student\n5. Exit");
+                choice = sc.nextInt();
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter ID, Name, Department, Marks: ");
+                        Student s = new Student(sc.nextInt(), sc.next(), sc.next(), sc.nextDouble());
+                        controller.insertStudent(s);
+                        break;
+                    case 2:
+                        controller.viewStudents();
+                        break;
+                    case 3:
+                        System.out.print("Enter StudentID and new Marks: ");
+                        controller.updateStudent(sc.nextInt(), sc.nextDouble());
+                        break;
+                    case 4:
+                        System.out.print("Enter StudentID to delete: ");
+                        controller.deleteStudent(sc.nextInt());
+                        break;
+                }
+            } while (choice != 5);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
